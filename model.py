@@ -51,7 +51,7 @@ model.fit(x_train,y_train)
 prediction=model.predict(x_test)
 
 from sklearn import metrics
-print(f"Root Mean Squared Error: {np.sqrt(metrics.mean_squared_error(y_test,prediction))}")
+# print(f"Root Mean Squared Error: {np.sqrt(metrics.mean_squared_error(y_test,prediction))}")
 
 
 #get features importance

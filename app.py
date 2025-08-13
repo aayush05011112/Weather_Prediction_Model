@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 import pandas as pd
 import numpy as np
 from model import predict_weather
+import json
 
 app = Flask(__name__)
 
@@ -38,10 +39,10 @@ def predict():
         prediction = predict_weather(input_data)
         
         result = 'Rain' if prediction == 1 else 'No rain'
-        return jsonify({'prediction': result})
+        return jsonify({'prediction': result, 'status': 'success'})
     
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e), 'status': 'error'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
