@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .rain {
+            background-color: #d4edff;
+            color: #004085;
+        }
+        .no-rain {
+            background-color: #e8f5e9;
+            color: #155724;
+        }
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 600px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather Precipitation Prediction</h1>
+    
+    <div class="form-container">
+        <div>
+            <div class="form-group">
+                <label for="tempmax">Max Temperature (°F)</label>
+                <input type="number" id="tempmax" value="75">
+            </div>
+            
+            <div class="form-group">
+                <label for="tempmin">Min Temperature (°F)</label>
+                <input type="number" id="tempmin" value="55">
+            </div>
+            
+            <div class="form-group">
+                <label for="temp">Temperature (°F)</label>
+                <input type="number" id="temp" value="65">
+            </div>
+            
+            <div class="form-group">
+                <label for="dew">Dew Point (°F)</label>
+                <input type="number" id="dew" value="50">
+            </div>
+            
+            <div class="form-group">
+                <label for="humidity">Humidity (%)</label>
+                <input type="number" id="humidity" value="70" min="0" max="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="precipprob">Precipitation Probability (%)</label>
+                <input type="number" id="precipprob" value="50" min="0" max="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="precipcover">Precipitation Cover</label>
+                <input type="number" id="precipcover" value="2">
+            </div>
+        </div>
+        
+        <div>
+            <div class="form-group">
+                <label for="windgust">Wind Gust (mph)</label>
+                <input type="number" id="windgust" value="15">
+            </div>
+            
+            <div class="form-group">
+                <label for="windspeed">Wind Speed (mph)</label>
+                <input type="number" id="windspeed" value="8">
+            </div>
+            
+            <div class="form-group">
+                <label for="winddir">Wind Direction (degrees)</label>
+                <input type="number" id="winddir" value="180" min="0" max="360">
+            </div>
+            
+            <div class="form-group">
+                <label for="sealevelpressure">Sea Level Pressure (hPa)</label>
+                <input type="number" id="sealevelpressure" value="1015">
+            </div>
+            
+            <div class="form-group">
+                <label for="cloudcover">Cloud Cover (%)</label>
+                <input type="number" id="cloudcover" value="50" min="0" max="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="month">Month (1-12)</label>
+                <input type="number" id="month" value="6" min="1" max="12">
+            </div>
+            
+            <div class="form-group">
+                <label for="day">Day (1-31)</label>
+                <input type="number" id="day" value="15" min="1" max="31">
+            </div>
+        </div>
+    </div>
+    
+    <button onclick="predictWeather()">Predict Precipitation</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        function predictWeather() {
+            // Get all input values
+            const inputs = {
+                tempmax: document.getElementById('tempmax').value,
+                tempmin: document.getElementById('tempmin').value,
+                temp: document.getElementById('temp').value,
+                dew: document.getElementById('dew').value,
+                humidity: document.getElementById('humidity').value,
+                precipprob: document.getElementById('precipprob').value,
+                precipcover: document.getElementById('precipcover').value,
+                windgust: document.getElementById('windgust').value,
+                windspeed: document.getElementById('windspeed').value,
+                winddir: document.getElementById('winddir').value,
+                sealevelpressure: document.getElementById('sealevelpressure').value,
+                cloudcover: document.getElementById('cloudcover').value,
+                month: document.getElementById('month').value,
+                day: document.getElementById('day').value
+            };
+            
+            // Show loading state
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = 'Predicting...';
+            resultDiv.className = '';
+            
+            // Send data to server
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(inputs)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultDiv.textContent = 'Error: ' + data.error;
+                } else {
+                    resultDiv.textContent = 'Prediction: ' + data.prediction;
+                    resultDiv.className = data.prediction === 'Rain' ? 'rain' : 'no-rain';
+                }
+            })
+            .catch(error => {
+                resultDiv.textContent = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>
